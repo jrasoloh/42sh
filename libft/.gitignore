@@ -1,0 +1,9 @@
+*.o
+*.a
+
+*.dSYM/
+
+a.out
+main.c
+
+.cquery

@@ -1,41 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_putmem_fd.c                                     :+:      :+:    :+:   */
+/*   ft_tlisti.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: echojnow <echojnow@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/12/24 20:38:14 by echojnow          #+#    #+#             */
-/*   Updated: 2018/05/14 16:53:12 by echojnow         ###   ########.fr       */
+/*   Created: 2018/06/18 14:50:28 by echojnow          #+#    #+#             */
+/*   Updated: 2018/06/18 17:19:41 by echojnow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-void	ft_putmem_fd(void *p, size_t len, int mode, int fd)
+int		ft_tlisti(t_tlist *list)
 {
-	size_t			i;
-	unsigned char	c;
+	t_tlist	*iter;
+	int		i;
 
+	iter = list;
 	i = 0;
-	while (i < len)
+	while (iter != NULL)
 	{
-		c = ((unsigned char*)p)[i];
-		if (mode == 0)
-		{
-			if (ft_numlen_base(c, 16) < 2)
-				ft_putchar_fd('0', fd);
-			ft_putnbr_base_fd(c, "0123456789ABCDEF", fd);
-			if (i + 1 < len)
-				ft_putchar(' ');
-		}
-		else if (mode == 1)
-		{
-			if (ft_isprint(c) == 1)
-				ft_putchar_fd(c, fd);
-			else
-				ft_putchar_fd('.', fd);
-		}
+		iter = iter->prev;
 		i++;
 	}
+	return (i);
 }

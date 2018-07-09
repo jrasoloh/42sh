@@ -6,7 +6,7 @@
 #    By: echojnow <echojnow@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/01/05 12:16:35 by echojnow          #+#    #+#              #
-#    Updated: 2018/05/12 13:34:48 by echojnow         ###   ########.fr        #
+#    Updated: 2018/06/18 17:22:38 by echojnow         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -41,6 +41,18 @@ SRCS = \
 	   ft_silistins_s.c \
 	   ft_silistinsn_s.c \
 	   ft_silistdel.c \
+	   \
+	   ft_tlistnew.c \
+	   ft_tlistadd.c \
+	   ft_tlistaddn.c \
+	   ft_tlistapp.c \
+	   ft_tlistappn.c \
+	   ft_tlistlast.c \
+	   ft_tlistlen.c \
+	   ft_tlisti.c \
+	   ft_tlistiter.c \
+	   ft_tlistdel.c \
+	   ft_tlistdelone.c \
 	   \
 	   ft_abstnew.c \
 	   ft_abstaddn.c \

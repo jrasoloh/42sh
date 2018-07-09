@@ -6,7 +6,7 @@
 /*   By: echojnow <echojnow@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/05 12:16:26 by echojnow          #+#    #+#             */
-/*   Updated: 2018/05/12 13:32:42 by echojnow         ###   ########.fr       */
+/*   Updated: 2018/06/18 17:17:01 by echojnow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,6 +92,36 @@ t_silist		*ft_silistins_s(t_silist **list, int data,
 t_silist		*ft_silistinsn_s(t_silist **list, int data,
 		int (*cmp)(int d, int d2));
 void			ft_silistdel(t_silist **list);
+
+/*
+** 21sh
+*/
+typedef struct	s_token
+{
+	int		kind;
+	char	*value;
+	char	**args;
+}				t_token;
+/*
+** Tokens List
+*/
+typedef struct	s_tlist
+{
+	t_token			*t;
+	struct s_tlist	*prev;
+	struct s_tlist	*next;
+}				t_tlist;
+t_tlist		*ft_tlistnew(t_token *t);
+t_tlist		*ft_tlistadd(t_tlist **list, t_token *t);
+t_tlist		*ft_tlistaddn(t_tlist **list, t_token *t);
+t_tlist		*ft_tlistapp(t_tlist *list, t_token *t);
+t_tlist		*ft_tlistappn(t_tlist **list, t_token *t);
+t_tlist		*ft_tlistlast(t_tlist *list);
+size_t		ft_tlistlen(t_tlist *list);
+int			ft_tlisti(t_tlist *list);
+void		ft_tlistiter(t_tlist *list, void (*f)(t_token *t));
+void		ft_tlistdelone(t_tlist **tlist);
+void		ft_tlistdel(t_tlist **list);
 
 /*
 ** Ascii Binary Search Tree
