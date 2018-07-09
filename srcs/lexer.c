@@ -6,7 +6,7 @@
 /*   By: echojnow <echojnow@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/08 17:16:55 by echojnow          #+#    #+#             */
-/*   Updated: 2018/05/03 19:09:42 by echojnow         ###   ########.fr       */
+/*   Updated: 2018/06/18 15:02:37 by echojnow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,35 +75,9 @@ static t_token	*make_token(char *s, int start, int end)
 	return (t);
 }
 
-static void		add_token(t_token ***tokens, t_token *token)
+t_tlist			*lexe(char *input)
 {
-	size_t	tokens_len;
-	t_token	**new;
-	int		i;
-
-	if (*tokens == NULL)
-	{
-		if ((*tokens = (t_token**)malloc(sizeof(t_token*) * 2)) == NULL)
-			return ;
-		(*tokens)[1] = NULL;
-		(*tokens)[0] = token;
-		return ;
-	}
-	tokens_len = ntarr_len(*tokens);
-	if ((new = (t_token**)malloc(sizeof(t_token*) * (tokens_len + 2))) == NULL)
-		return ;
-	new[tokens_len + 1] = NULL;
-	new[tokens_len] = token;
-	i = -1;
-	while (++i < (int)(tokens_len))
-		new[i] = (*tokens)[i];
-	free(*tokens);
-	*tokens = new;
-}
-
-t_token		**lexe(char *input)
-{
-	t_token	**tokens;
+	t_tlist	*tokens;
 	int		i;
 	int		val_start;
 	int		val_end;
@@ -116,7 +90,8 @@ t_token		**lexe(char *input)
 	{
 		val_start = i;
 		val_end = end_of_value(input, i);
-		add_token(&tokens, make_token(input, val_start, val_end));
+		ft_tlistappn(&tokens, make_token(input, val_start, val_end));
+		/* add_token(&tokens, make_token(input, val_start, val_end)); */
 		i = next_nonblank(input, val_end) - 1;
 	}
 	print_tokens(tokens);

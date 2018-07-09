@@ -6,7 +6,7 @@
 /*   By: echojnow <echojnow@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/05 15:57:07 by echojnow          #+#    #+#             */
-/*   Updated: 2018/05/22 16:18:12 by jrasoloh         ###   ########.fr       */
+/*   Updated: 2018/06/21 18:16:11 by jrasoloh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,15 @@
 
 static void	sigint_handler(int sig)
 {
+	/* char *pwd; */
+
+	/* FT_UNUSED(sig); */
+	/* pwd = save_pwd(NULL); */
+	/* ft_putchar('\n'); */
+	/* ft_put(TO_PROMPT, pwd); */
+
 	FT_UNUSED(sig);
-	ft_put("exiting...\n\t");
+	ft_put("exiting...\r\n");
 	exit_term();
 }
 
@@ -54,11 +61,12 @@ void		register_signals(void)
 	int	i;
 
 	i = -1;
-	/* while (++i < 32) */
-	/* { */
-	/* 	if (i != SIGWINCH && i != SIGTSTP && i != SIGCONT) */
-	/* 		signal(i, &sigint_handler); */
-	/* } */
+	while (++i < 32)
+	{
+		if (i != SIGWINCH && i != SIGTSTP && i != SIGCONT && i != SIGINT
+				&& i != SIGSEGV)
+			signal(i, &sigint_handler);
+	}
 	signal(SIGINT, &sigint_handler);
 	signal(SIGWINCH, &sigwinch_handler);
 	signal(SIGTSTP, &sigstp_handler);

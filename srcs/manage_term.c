@@ -6,7 +6,7 @@
 /*   By: echojnow <echojnow@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/06 22:23:21 by echojnow          #+#    #+#             */
-/*   Updated: 2018/05/22 15:09:04 by jrasoloh         ###   ########.fr       */
+/*   Updated: 2018/06/25 17:30:32 by jrasoloh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,10 @@
 
 int	init_caps(t_caps *caps)
 {
-	caps->clr = tgetstr("cl", NULL);
+	tgetent(0, getenv("TERM"));
+	caps->up = tgetstr("up", NULL);
+	caps->cr = tgetstr("cr", NULL);
+	caps->cd = tgetstr("cd", NULL);
 	caps->gto = tgetstr("cm", NULL);
 	caps->sta = tgetstr("so", NULL);
 	caps->ste = tgetstr("se", NULL);
@@ -37,8 +40,8 @@ struct termios	*save_orig_termios(struct termios *orig_termios)
 		saved_orig_termios = orig_termios;
 	return (saved_orig_termios);
 }
-t_caps			*save_caps(t_caps *caps)
 
+t_caps			*save_caps(t_caps *caps)
 {
 	static t_caps	*saved_caps = NULL;
 
@@ -49,9 +52,9 @@ t_caps			*save_caps(t_caps *caps)
 
 int				save_fd(int fd)
 {
-	static int	saved_fd;
+	static int	saved_fd = -1;
 
-	if (saved_fd != -1)
+	if (fd != -1)
 		saved_fd = fd;
 	return (saved_fd);
 }
@@ -83,8 +86,6 @@ void	configure_term(void)
 	/* raw.c_oflag &= ~(OPOST); */
 	tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 	ft_putstr_fd(caps->hic, fd);
-	ft_putstr_fd(caps->sav, fd);
-	tgetent(0, getenv("TERM"));
 }
 
 void	restore_term(void)
@@ -96,7 +97,6 @@ void	restore_term(void)
 	orig_termios = save_orig_termios(NULL);
 	caps = save_caps(NULL);
 	fd = save_fd(-1);
-	ft_putstr_fd(caps->res, fd);
 	ft_putstr_fd(caps->shc, fd);
 	tcsetattr(STDIN_FILENO, TCSAFLUSH, orig_termios);
 }

@@ -6,118 +6,98 @@
 /*   By: echojnow <echojnow@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/20 12:28:46 by echojnow          #+#    #+#             */
-/*   Updated: 2018/03/21 15:24:19 by echojnow         ###   ########.fr       */
+/*   Updated: 2018/06/18 17:42:04 by echojnow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "twentyonesh.h"
 
-static void	remove_arg_words(t_token ***tokens, int start, int args_len)
+static int	calculate_args_len(t_tlist *start, t_tlist *end)
 {
-	t_token	**new;
-	size_t	new_len;
-	int		new_i;
-	int		i;
+	int	len;
 
-	new_len = ntarr_len(*tokens) - args_len;
-	ft_put("oldlen: %d\tnewlen: %d\targs_len: %d\n", ntarr_len(*tokens), new_len, args_len);
-	new = (t_token**)malloc(sizeof(t_token*) * (new_len + 1));
-	new[new_len] = NULL;
-	new_i = 0;
-	i = 0;
-	ft_put("start: %d, full: %d\n", start, start + args_len);
-	/* while ((*tokens)[i] && i < (int)new_len) */
-	while ((*tokens)[i])
+	len = 0;
+	while (start != end && start != NULL)
 	{
-		ft_put("___value: '%s'\tkind: %d\ti: %d\tj: %d\n",
-				(*tokens)[i]->value, (*tokens)[i]->kind, new_i, i);
-		if (!(i > start && i <= start + args_len))
-		{
-			ft_put("---value: '%s'\tkind: %d\ti: %d\tj: %d\n",
-					(*tokens)[i]->value, (*tokens)[i]->kind, new_i, i);
-			new[new_i] = (*tokens)[i];
-			new_i++;
-		}
-		i++;
+		start = start->next;
+		len++;
 	}
-	ft_put("END OF REMOVE_ARG_WORDS\n");
-	free(*tokens);
-	*tokens = new;
+	return (len);
 }
 
-static void	make_token_group(t_token ***tokens, int start, int end)
+static void	make_token_group(t_tlist *start, t_tlist *end)
 {
-	int	args_len;
-	int	i;
-	int	j;
+	ft_put("/ MAKE_TOKEN_GROUP \\\n");
+	int		args_len;
+	t_tlist	*token;
+	int		i;
 
-	args_len = end - start;
-	ft_put("end:%d - start:%d = %d\n", end, start, end - start);
+	args_len = calculate_args_len(start, end);
 	ft_put("args_len: %d\n", args_len);
-	(*tokens)[start]->kind = TO_GRP;
-	(*tokens)[start]->args = (char**)malloc(sizeof(char*) * (args_len + 1));
-	(*tokens)[start]->args[args_len] = NULL;
-	i = -1;
-	j = start + 1;
+	token = start->prev;
+	token->t->kind = TO_GRP;
+	token->t->args = (char**)malloc(sizeof(char*) * (args_len + 1));
+	token->t->args[args_len] = NULL;
 	/* ft_put("args len %d\n", ft_ntsarr_len((*tokens)[start]->args)); */
 	/* ft_put("tokens len %d\n", ntarr_len(*tokens)); */
-	while (++i < args_len)
+	i = 0;
+	while (start != end && start != NULL)
 	{
-		ft_put("group iter %d, %d\n", i, j);
-		(*tokens)[start]->args[i] = (*tokens)[j]->value;
-		j++;
+		token->t->args[i] = ft_strdup(start->t->value);
+
+		ft_put("BUILDING TG -> %d, %s\n", i, token->t->args[i]);
+
+		ft_tlistdelone(&start);
+		i++;
 	}
-	ft_put("after\n");
-	remove_arg_words(tokens, start, args_len);
+	ft_put("\\ MAKE_TOKEN_GROUP /\n");
 }
 
-static void	make_cmd(t_token **tokens)
+static void	make_cmd(t_tlist *tokens)
 {
-	int	i;
+	t_tlist	*iter;
 
-	i = -1;
-	while (tokens[++i])
+	iter = tokens;
+	while (iter != NULL)
 	{
-		if (i > 0 && tokens[i]->kind == TO_WORD)
+		if (iter->prev != NULL && iter->t->kind == TO_WORD)
 		{
-			if (tokens[i - 1]->kind == TO_REDIR)
-				tokens[i]->kind = TO_FILE;
+			if (iter->prev->t->kind == TO_REDIR)
+				iter->t->kind = TO_FILE;
 			else
-				tokens[i]->kind = TO_CMD;
+				iter->t->kind = TO_CMD;
 		}
-		else if (i == 0 && tokens[i]->kind == TO_WORD)
-				tokens[i]->kind = TO_CMD;
+		else if (iter->prev == NULL && iter->t->kind == TO_WORD)
+				iter->t->kind = TO_CMD;
+		iter = iter->next;
 	}
 }
 
-void		make_token_groups(t_token ***tokens)
+void		make_token_groups(t_tlist **tokens)
 {
-	size_t	tokens_len;
-	int		i;
-	int		j;
+	size_t		tokens_len;
+	t_tlist		*i;
+	t_tlist		*j;
 
-	tokens_len = ntarr_len(*tokens);
-	i = -1;
-	while ((*tokens)[++i])
+	tokens_len = ft_tlistlen(*tokens);
+	/* int kind2 = (*tokens)->prev->t->kind; */
+	i = *tokens;
+	while (i != NULL)
 	{
-		if (i > 0 && (*tokens)[i - 1]->kind == TO_WORD && (*tokens)[i]->kind == TO_WORD)
+		if (i->prev != NULL && i->prev->t->kind == TO_WORD && i->t->kind == TO_WORD)
 		{
-			ft_put("current token: %d, '%s'\n", (*tokens)[i]->kind, (*tokens)[i]->value);
+			ft_put("current token: %d, '%s'\n", i->t->kind, i->t->value);
 			j = i;
-			while ((*tokens)[j] && (*tokens)[j]->kind == TO_WORD)
+			while (j != NULL && j->t->kind == TO_WORD)
+				j = j->next;
+			make_token_group(i, j);
+			if ((tokens_len = ft_tlistlen(*tokens)) - 1 <= (size_t)ft_tlisti(i))
 			{
-				ft_put("make_token iter %d\n", j);
-				j++;
-			}
-			ft_put("========================================= %d, %d\n", i, j);
-			make_token_group(tokens, i - 1, j - 1);
-			if ((tokens_len = ntarr_len(*tokens)) - 1 <= (size_t)i)
-			{
-				ft_put("*************************** => tok_len: %d, i: %d\n", tokens_len, i);
 				break ;
 			}
 			ft_put("after\n");
 		}
+		i = i->next;
 	}
 	make_cmd(*tokens);
 	ft_put("OUT OF MAKE_TOKEN_GROUPS\n");

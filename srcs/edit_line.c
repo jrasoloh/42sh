@@ -6,7 +6,7 @@
 /*   By: echojnow <echojnow@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/14 13:35:29 by echojnow          #+#    #+#             */
-/*   Updated: 2018/06/15 16:06:16 by jrasoloh         ###   ########.fr       */
+/*   Updated: 2018/06/25 17:00:32 by jrasoloh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,21 +14,54 @@
 #include "line_edition.h"
 #include <stdio.h>
 
-int			test(int n)
+int					event(char *c, t_caps *caps)
 {
-	return (write(1, &n, 1));
-}
+	t_line			*crs;
 
-int			event(char *c, t_caps *caps)
-{
 	FT_UNUSED(caps);
-	if ((c[0] >= 'a' && c[0] <= 'z') || (c[0] >= 'A' && c[0] <= 'Z'))
-		add_to_line(c[0]);
-	else if (c[0] == TO_K_BAC || c[0] == TO_K_DEL)
+	crs = g_edit->cursor;
+	if (!ft_strncmp(TO_K_CTRL_UP, c, 7))
+		move_up();
+	else if (c[0] == 16 && c[1] == 0)
 	{
-			del_last_char();
-		//	printf(" un caractere supp\n");
+		g_edit->mode = (g_edit->mode == 0) ?
+			enter_selection_mode() : exit_selection_mode();
 	}
+	else if (c[0] == 11 && c[1] == 0)
+	{
+		if (g_edit->mode == 1)
+			delete_selection();
+		else
+			paste_selection();
+	}
+	else if (!ft_strncmp(TO_K_CTRL_DOWN, c, 7))
+		move_down();
+	else if (!ft_strcmp(c, TO_K_LEFT))
+		move_left();
+	else if (!ft_strcmp(c, TO_K_RIGHT))
+		move_right();
+	else if (!ft_strncmp(c, TO_K_SHIFT_LEFT, 7))
+		go_to_previous_word();
+	else if (!ft_strncmp(c, TO_K_SHIFT_RIGHT, 7))
+		go_to_next_word();
+	else if (!ft_strcmp(c, TO_K_HOME))
+		go_to_head();
+	else if (!ft_strcmp(c, TO_K_END))
+		go_to_tail();
+	else if (!ft_strcmp(c, TO_K_DEL_FWD))
+		del_next_char();
+	else if (c[0] == TO_K_BAC || c[0] == TO_K_DEL)
+		del_last_char();
+	else if (c[0] == TO_K_RET)
+	{
+		int return_eval = eval_line();
+		if (return_eval > 0)
+			add_return_to_line(return_eval);
+		else
+			return (0);
+	}
+	else if (ft_is_printable(c[0]) || ft_isblank(c[0]))
+		add_to_line(c[0]);
 
 
 		/* ft_putstr(caps->ins); */
@@ -82,27 +115,39 @@ int			event(char *c, t_caps *caps)
 	return (1);
 }
 
-int	edit_loop()
+int				edit_loop()
 {
-	int		running;
-	char	c[3];
-	t_caps	*caps;
+	int			running;
+	char		c[7];
+	t_caps		*caps;
+	int			i;
 
 	running = 1;
 	ft_memset(&c, 0, TO_READ_SIZE);
 	caps = save_caps(NULL);
 	init_edit();
 	print_line();
+	i = get_line_number();
 	while (running)
 	{
 		read(0, &c, TO_READ_SIZE);
-
-//		 if ((running = event(c)) == 1)
-//			return (1);
+		/* ft_putnbr(c[0]); */
+		/* ft_putchar('\n'); */
+		/* ft_putnbr(c[1]); */
+		/* ft_putchar('\n'); */
+		/* ft_putnbr(c[2]); */
+		/* ft_putchar('\n'); */
+		/* ft_putnbr(c[3]); */
+		/* ft_putchar('\n'); */
+		/* ft_putnbr(c[4]); */
+		/* ft_putchar('\n'); */
+		/* ft_putnbr(c[5]); */
+		/* ft_putchar('\n'); */
+		/* ft_putnbr(c[6]); */
+		/* ft_putchar('\n'); */
 		running = event(&c[0], caps);
-		tputs(tgetstr("cr", NULL), 1, &test);
-		tputs(tgetstr("cd", NULL), 1, &test);
-		print_line();
+		update_onscreen(i);
+		i = get_line_number();
 		ft_memset(&c, 0, TO_READ_SIZE);
 	}
 	return (0);

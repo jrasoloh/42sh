@@ -6,7 +6,7 @@
 /*   By: noom </var/spool/mail/noom>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/25 18:55:48 by noom              #+#    #+#             */
-/*   Updated: 2018/06/14 15:42:56 by echojnow         ###   ########.fr       */
+/*   Updated: 2018/06/15 16:04:42 by echojnow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,6 +164,29 @@ int		fork_proc(int in, int out, t_token *t, char ***env)
 	return (pid);
 }
 
+int		read_pipe(int *fildes)
+{
+	close(fildes[1]);
+	dup2(fildes[0], STDIN_FILENO);
+	close(fildes[0]);
+	return (1);
+}
+
+int		write_pipe(int *fildes)
+{
+	close(fildes[0]);
+	dup2(fildes[1], STDOUT_FILENO);
+	close(fildes[1]);
+	return (1);
+}
+
+int		close_pipe(int *fildes)
+{
+	close(fildes[0]);
+	close(fildes[1]);
+	return (1);
+}
+
 void	manage_pipe(t_bst *ast, char ***env)
 {
 	/* static int	fd[2]; */
@@ -177,26 +200,61 @@ void	manage_pipe(t_bst *ast, char ***env)
 	if (first)
 	{
 		close(fd[1]);
-		ft_put("1 running %s\n", ((t_token*)ast->right->data)->value);
+		ft_put("1 running %s\n", ((t_tlist*)ast->right->data)->t->value);
 		ft_put_fd(fd[0], "hey\n");
-		fork_proc(fd[0], 1, (t_token*)ast->right->data, env);
+		fork_proc(fd[0], 1, ((t_tlist*)ast->right->data)->t, env);
 		/* ft_put_fd(fd[1], "hey\n"); */
 		first = 0;
 	}
 	else
 	{
-		ft_put("2 running %s\n", ((t_token*)ast->right->data)->value);
-		fork_proc(fd[0], fd[1], (t_token*)ast->right->data, env);
+		ft_put("2 running %s\n", ((t_tlist*)ast->right->data)->t->value);
+		fork_proc(fd[0], fd[1], ((t_tlist*)ast->right->data)->t, env);
 	}
 
-	if (((t_token*)ast->left->data)->kind == TO_PIPE)
+	if (((t_tlist*)ast->left->data)->t->kind == TO_PIPE)
 		manage_pipe(ast->left, env);
 	else
 	{
 		close(fd[0]);
-		ft_put("3 running %s\n", ((t_token*)ast->left->data)->value);
-		fork_proc(0, fd[1], (t_token*)ast->left->data, env);
+		ft_put("3 running %s\n", ((t_tlist*)ast->left->data)->t->value);
+		fork_proc(0, fd[1], ((t_tlist*)ast->left->data)->t, env);
 		first = 1;
+	}
+}
+
+void	manage_pipe2(t_bst *ast, char ***env)
+{
+	pid_t	pid;
+	pid_t	pid2;
+	int		fd[2];
+
+	pipe(fd);
+	if ((pid = fork()) == -1)
+		ft_put("Couldnt fork the process\n");
+	else if (pid == 0) // Child
+	{
+		dup2(fd[1], 1);
+		run3(ast->left, env);
+		kill(pid, SIGHUP);
+		exit(0);
+	}
+	else // Parent
+	{
+		if ((pid2 = fork()) == -1)
+			ft_put("Couldnt fork the process\n");
+		else if (pid2 == 0) // Child
+		{
+			dup2(fd[0], 0);
+			eval2(((t_tlist*)ast->right->data)->t, env);
+			waitpid(pid, NULL, WNOHANG);
+			/* waitpid(pid, NULL, WUNTRACED); */
+			exit(0);
+		}
+		else // Parent
+		{
+			waitpid(pid2, NULL, WUNTRACED);
+		}
 	}
 }
 
@@ -211,8 +269,15 @@ void	run3(t_bst *ast, char ***env)
 	//		manage_pipe(ast->left);
 	//	else
 	//		execute left redirecting in and out
-	if (((t_token*)ast->left->data)->kind == TO_PIPE)
-		manage_pipe(ast, env);
+	if (((t_tlist*)ast->data)->t->kind == TO_PIPE)
+	{
+		ft_put("It's a pipe!\n");
+		manage_pipe2(ast, env);
+	}
+	else
+	{
+		eval2(((t_tlist*)ast->data)->t, env);
+	}
 }
 
 int		interprete(t_bst *ast, char ***env)

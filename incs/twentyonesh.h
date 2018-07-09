@@ -6,7 +6,7 @@
 /*   By: echojnow <echojnow@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/27 20:43:47 by echojnow          #+#    #+#             */
-/*   Updated: 2018/06/15 15:48:31 by jrasoloh         ###   ########.fr       */
+/*   Updated: 2018/06/25 16:17:09 by jrasoloh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,19 +50,12 @@
 # define TO_REDIR 6
 # define TO_FILE 7
 
-# define TO_READ_SIZE 1
-# define TO_K_ESC '\e'
-# define TO_K_DEL 127
-# define TO_K_BAC 126
-# define TO_K_RET 10
-# define TO_K_SPA ' '
-
-typedef struct	s_token
-{
-	int		kind;
-	char	*value;
-	char	**args;
-}				t_token;
+/* typedef struct	s_token */
+/* { */
+/* 	int		kind; */
+/* 	char	*value; */
+/* 	char	**args; */
+/* }				t_token; */
 
 typedef struct	s_op
 {
@@ -70,6 +63,7 @@ typedef struct	s_op
 	t_token	*op1;
 	t_token	*op2;
 }				t_op;
+
 
 /*
 ** init.c
@@ -102,29 +96,30 @@ int				eval2(t_token *t, char ***env);
 /*
 ** interpreter.c
 */
+void			run3(t_bst *ast, char ***env);
 int				interprete(t_bst *ast, char ***env);
 
 /*
 ** lexer.c
 */
-t_token			**lexe(char *input);
+t_tlist			*lexe(char *input);
 
 /*
 ** lexer_make_tgs.c
 */
-void			make_token_groups(t_token ***tokens);
+void			make_token_groups(t_tlist **tokens);
 
 /*
 ** parser.c
 */
-t_bst			*parse(t_token **tokens);
+t_bst			*parse(t_tlist *tokens);
 
 /*
 ** token_utils.c
 */
 size_t			ntarr_len(t_token **tokens);
 void			print_token(t_token *t);
-void			print_tokens(t_token **tokens);
+void			print_tokens(t_tlist *tokens);
 int				is_cpartofw(char c);
 int				next_nonblank(char *s, int start);
 char			*kind_tostr(int kind);

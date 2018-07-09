@@ -6,7 +6,7 @@
 /*   By: echojnow <echojnow@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/15 16:29:06 by echojnow          #+#    #+#             */
-/*   Updated: 2018/05/12 13:01:15 by echojnow         ###   ########.fr       */
+/*   Updated: 2018/06/18 15:01:19 by echojnow         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,26 +35,45 @@ void		print_token(t_token *t)
 	if (t->kind == TO_GRP)
 	{
 		arg_i = -1;
-		while (t->args[++arg_i])
+		while (t->args[++arg_i] != '\0')
 			ft_put("arg_i: %d -> '%s'\n", arg_i, t->args[arg_i]);
 	}
 }
 
-void		print_tokens(t_token **tokens)
-{
-	int	i;
-	int arg_i;
+/* void		print_tokens(t_token **tokens) */
+/* { */
+/* 	int	i; */
+/* 	int arg_i; */
 
-	i = -1;
-	while (tokens[++i])
+/* 	i = -1; */
+/* 	while (tokens[++i]) */
+/* 	{ */
+/* 		print_token(tokens[i]); */
+/* 		if (tokens[i]->kind == TO_GRP) */
+/* 		{ */
+/* 			arg_i = -1; */
+/* 			while (tokens[i]->args[++arg_i]) */
+/* 				ft_put("t_i: %d, arg_i: %d -> '%s'\n", i, arg_i, tokens[i]->args[arg_i]); */
+/* 		} */
+/* 	} */
+/* } */
+
+void		print_tokens(t_tlist *tokens)
+{
+	t_tlist	*iter;
+	int		arg_i;
+
+	iter = tokens;
+	while (iter != NULL)
 	{
-		print_token(tokens[i]);
-		if (tokens[i]->kind == TO_GRP)
+		print_token(iter->t);
+		if (iter->t->kind == TO_GRP)
 		{
 			arg_i = -1;
-			while (tokens[i]->args[++arg_i])
-				ft_put("t_i: %d, arg_i: %d -> '%s'\n", i, arg_i, tokens[i]->args[arg_i]);
+			while (iter->t->args[++arg_i])
+				ft_put("arg_i: %d -> '%s'\n", arg_i, iter->t->args[arg_i]);
 		}
+		iter = iter->next;
 	}
 }
 
